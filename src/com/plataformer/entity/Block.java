@@ -25,6 +25,8 @@ public class Block extends Entity{
         g.setColor(color);
 		g.fill(this);
 		g.draw(this);
+
+        if(colide)super.draw(g);
     }
 
     @Override

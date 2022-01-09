@@ -29,21 +29,7 @@ public class Player extends Entity{
 		g.fill(this);
 		g.draw(this);
 
-        g.setColor(Color.green);
-        var bottom = getBoundsBottom();
-		g.draw(bottom);
-
-        g.setColor(Color.green);
-		var left = getBoundsLeft();
-		g.draw(left);
-
-        g.setColor(Color.green);
-        var top = getBoundsTop();
-		g.draw(top);
-
-        g.setColor(Color.green);
-		var right = getBoundsRight();
-		g.draw(right);
+		super.draw(g);
 	}
 
 

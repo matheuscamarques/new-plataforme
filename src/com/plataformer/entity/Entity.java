@@ -3,7 +3,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.awt.event.KeyAdapter;
 import java.awt.Graphics2D;
-
+import java.awt.Color;
 
 public abstract class Entity extends Rectangle2D.Float{
 	
@@ -28,7 +28,23 @@ public abstract class Entity extends Rectangle2D.Float{
         System.out.println(name);
 	}
 	public abstract void update();
-	public abstract void draw(Graphics2D g);	
+	public  void draw(Graphics2D g){
+        g.setColor(Color.green);
+        var bottom = getBoundsBottom();
+		g.draw(bottom);
+
+        g.setColor(Color.green);
+		var left = getBoundsLeft();
+		g.draw(left);
+
+        g.setColor(Color.green);
+        var top = getBoundsTop();
+		g.draw(top);
+
+        g.setColor(Color.green);
+		var right = getBoundsRight();
+		g.draw(right);
+    };	
 	public abstract KeyAdapter getKeyAdapter();
     public abstract void gravity();
 
