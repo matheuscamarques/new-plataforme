@@ -26,6 +26,9 @@ public class Game extends Canvas implements Runnable {
 	private BufferStrategy bs;
 	private Graphics2D g;
 	private ArrayList<Entity> entidades = new ArrayList<>();
+	private ArrayList<Enemy> inimigos = new ArrayList<>();
+	private ArrayList<Entity> colidiveis = new ArrayList<>();
+	private ArrayList<Entity> notColidiveis = new ArrayList<>();
 	private Player player;
 	private Camera camera;
 
@@ -37,11 +40,23 @@ public class Game extends Canvas implements Runnable {
 		thread.start();
 	}
 
+	public void init() {
+		for (int i = 0; i < TestLevel.instance.blocosList.size(); i++) {
+			Block bloco = TestLevel.instance.blocosList.get(i);
+			if (bloco.colide) {
+				colidiveis.add(bloco);
+			} else {
+				notColidiveis.add(bloco);
+			}
+		}
+	}
+
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
 		// System.out.println("Thread is started.");
-
+		this.init();
+		player.init();
 		long lastTime = System.nanoTime();
 		double amountOfTicks = 30.0;
 		double ns = 1000000000 / amountOfTicks;
@@ -75,7 +90,7 @@ public class Game extends Canvas implements Runnable {
 	private void render() {
 		bs = this.getBufferStrategy();
 		if (bs == null) {
-			this.createBufferStrategy(9);
+			this.createBufferStrategy(3);
 			return;
 		}
 
@@ -84,36 +99,58 @@ public class Game extends Canvas implements Runnable {
 		g.setColor(Color.green);
 		g.fill(background);
 		g.draw(background);
-
 		g.translate(camera.x, camera.y);
-		for (int i = 0; i < TestLevel.instance.blocos.length; i++) {
-			for (int j = 0; j < TestLevel.instance.blocos[i].length; j++) {
-				TestLevel.instance.blocos[i][j].draw(g);
+		// player colide with blocks
+		for (int i = 0; i < TestLevel.instance.blocosList.size(); i++) {
+			Block bloco = TestLevel.instance.blocosList.get(i);
+			bloco.draw(g);
+			if (bloco.colide)
+				player.colide(bloco);
+
+			if (bloco.valueOf == -1) {
+				if (inimigos.size() < 5) {
+					Enemy inimigo = new Enemy(bloco.x, bloco.y);
+					inimigos.add(inimigo);
+					System.out.println(" " + bloco.x + " " + bloco.y + " Inimigo adicionado: " + inimigos.size());
+				}
 			}
 		}
 
-		for (int i = 0; i < entidades.size(); i++) {
-			entidades.get(i).draw(g);
-		}
+		
+		player.draw(this, g);
+		player.update();
+		player.gravity();
 
-		for (int i = 0; i < entidades.size(); i++) {
-			entidades.get(i).update();
-		}
+		// enemy colide with blocks
+		for (int i = 0; i < inimigos.size(); i++) {
+			Enemy inimigo = inimigos.get(i);
+			inimigos.get(i).draw(g);
+			inimigos.get(i).update();
+			inimigos.get(i).gravity();
 
-		for (int i = 0; i < TestLevel.instance.blocos.length; i++) {
-			for (int j = 0; j < TestLevel.instance.blocos[i].length; j++) {
-				Block bloco = TestLevel.instance.blocos[i][j];
-				if(bloco.colide)
-						player.colide(bloco);
-				
-				
+			for (int j = 0; j < TestLevel.instance.blocos.length; j++) {
+				for (int k = 0; k < TestLevel.instance.blocos[j].length; k++) {
+					Block bloco = TestLevel.instance.blocos[j][k];
+					if (bloco.colide) {
+						inimigo.colide(bloco);
+					}
+				}
 			}
-		}
 
-		for (int i = 0; i < entidades.size(); i++) {
-			Entity entidade = entidades.get(i);
-			if (entidade.y < getHeight() - entidade.height) {
-				entidade.gravity();
+			// colide others enemies
+			for (int j = 0; j < inimigos.size(); j++) {
+				if (i != j) {
+					Enemy inimigoOther = inimigos.get(j);
+					inimigo.colide(inimigoOther);
+					System.out.println("Colidiu com: " + j);
+				}
+			}
+
+			player.colide(inimigo);
+			inimigo.colide(player);
+
+			if (inimigo.died) {
+				inimigos.remove(i);
 			}
 		}
 
@@ -125,6 +162,8 @@ public class Game extends Canvas implements Runnable {
 	private void tick() {
 		// TODO Auto-generated method stub
 		camera.tick(player, this);
+		player.update();
+		player.gravity();
 
 	}
 
@@ -137,6 +176,7 @@ public class Game extends Canvas implements Runnable {
 		game.entidades.add(player);
 		game.player = player;
 		game.camera = camera;
+
 		new Window(
 				Config.WIDTH.getValue(),
 				Config.HEIGHT.getValue(),

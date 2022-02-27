@@ -6,12 +6,17 @@ import java.awt.Color;
 public class Block extends Entity{
     public Color color ;
     public boolean colide = false;
-    
+    public int valueOf = 0;
+
     public Block(float x, float y,Color color,boolean colide) {
         super("Block Map",x, y, 50, 50);
         this.color = color;
         this.colide = colide;
         //TODO Auto-generated constructor stub
+    }
+
+    public void setValueOf(int valueOf) {
+        this.valueOf = valueOf;
     }
 
     @Override

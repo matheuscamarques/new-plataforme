@@ -2,7 +2,7 @@ package com.plataformer.config;
 
 
 public enum Config{
-    WIDTH(1080), HEIGHT(700);
+    WIDTH(1000), HEIGHT(720);
 
     private Config(Integer value){
        this.value = value;
